@@ -1,0 +1,3 @@
+[submodule "lab03/server/beast"]
+	path = lab03/server/beast
+	url = https://github.com/boostorg/beast.git
