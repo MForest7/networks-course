@@ -1,4 +1,5 @@
 use core::time;
+use std::env;
 use std::net::UdpSocket;
 use std::thread::sleep;
 use std::time::Duration;
@@ -10,23 +11,24 @@ fn gen_msg(index: i32, time: DateTime<Utc>) -> String {
 }
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
     let to_addr = "127.0.0.1:34254";
     println!("PING {}", &to_addr);
 
-    let socket = UdpSocket::bind("127.0.0.1:34354").unwrap();
+    let socket = UdpSocket::bind("127.0.0.1:".to_owned() + &args[1]).unwrap();
     socket
         .set_read_timeout(Some(Duration::from_secs(1)))
         .unwrap();
     socket.set_ttl(64).unwrap();
 
-    let packets_count = 10;
+    let packets_count = 30;
     let mut response_delays: Vec<f32> = vec![];
     let begin_time = Utc::now();
 
     for index in 0..packets_count {
         let send_time = Utc::now();
         let msg = gen_msg(index, send_time);
-        socket.send_to(&msg.as_bytes(), to_addr).unwrap();
+        socket.send_to(&msg.as_bytes(), &to_addr).unwrap();
 
         let mut buf = [0; 512];
         match socket.recv_from(&mut buf) {
